@@ -108,7 +108,7 @@ processingQueue.process(async (job) => {
         let messages = [];
         if (mimeType.startsWith('image/')) {
             messages = [
-                {role: 'system', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
+                {role: 'assistant', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
                 {
                     role: 'user',
                     content: [
@@ -127,7 +127,7 @@ processingQueue.process(async (job) => {
             ];
         } else {
             messages = [
-                {role: 'system', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
+                {role: 'assistant', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
                 {
                     role: 'user',
                     content: 'Please process the file I have uploaded.',
@@ -135,6 +135,7 @@ processingQueue.process(async (job) => {
                 },
             ];
         }
+
 
         const thread = await openai.beta.threads.create({
             messages: messages,
