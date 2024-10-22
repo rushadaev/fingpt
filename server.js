@@ -35,6 +35,7 @@ const processingQueue = new Bull('processingQueue', {
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
         const file = req.file;
+        const userData = req.body.userData;
 
         if (!file) {
             return res.status(400).send('No file uploaded.');
@@ -51,6 +52,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             filePath: newFilePath,
             mimeType: mimeType,
             originalName: originalName,
+            userData: userData,
         });
 
         // Return job ID instantly
@@ -90,7 +92,7 @@ app.get('/result/:jobId', async (req, res) => {
 
 // Bull queue processor
 processingQueue.process(async (job) => {
-    const { filePath, mimeType, originalName } = job.data;
+    const { filePath, mimeType, originalName, userData } = job.data;
 
     try {
         const uploadedFile = await openai.files.create({
@@ -106,6 +108,7 @@ processingQueue.process(async (job) => {
         let messages = [];
         if (mimeType.startsWith('image/')) {
             messages = [
+                {role: 'system', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
                 {
                     role: 'user',
                     content: [
@@ -124,6 +127,7 @@ processingQueue.process(async (job) => {
             ];
         } else {
             messages = [
+                {role: 'system', content: `User data: ${userData}. Use it to check if legal name matches the name in the file.`},
                 {
                     role: 'user',
                     content: 'Please process the file I have uploaded.',
