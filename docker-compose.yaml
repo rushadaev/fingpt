@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
   server:
     build:
       context: .
@@ -7,10 +14,13 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3000
     ports:
       - "3021:3000"
+    depends_on:
+      - redis
     volumes:
       - ./uploads:/usr/src/app/uploads
 
